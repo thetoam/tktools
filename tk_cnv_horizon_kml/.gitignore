@@ -1,0 +1,5 @@
+test.cc
+*.o
+*.so.*.*
+tk_cnv_horizon_kml
+tk_cnv_horizon_kml.o

@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -Wall -fPIC
-LDFLAGS=-lm
+LDFLAGS=-lm -ltkgeolib
 
 SOURCES=tk_cnv_horizon_kml.cc
 BINNAME=tk_cnv_horizon_kml
