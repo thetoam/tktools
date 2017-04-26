@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -6,46 +7,59 @@
 
 using namespace std;
 
-void ::Options::add(string name, char type, bool *var)
+
+void ::Options::add(string name, char type, void *var)
 {
-  names.push_back("-" + name);
-  types.push_back(type);
-  vars.push_back(var);
+  OptionEntry o("-" + name, type, var);
+  opts.push_back(o);
 }
 
 
 void ::Options::process(int offset, int argc, char *argv[])
 {
-  int i;
-  vector< ::std::string> args;
+  int i, j;
+  string arg;
 
-  // Build a vector, because I fid it easier to deal with
-  for (i = offset; i < argc; i++)
-    args.push_back(string(argv[i]));
-
-
-  // TODO: Loop using numbers (and vector.size() ) instead, so I know which
-  //       element of "names" I'm looking at, so I can grab the corresponding
-  //       element of "types" and "vars" to play around with.
-
-
-
-  // See if each named flag is in there:
-  for (vector<string>::iterator nit = names.begin(); nit != names.end(); ++nit)
+  for (i = 0; i < opts.size(); i++)
   {
-    for (vector<string>::iterator it = args.begin(); it != args.end(); ++it)
+    for (j = offset; j < argc; j++)
     {
-      if ((*it)[0] != '-')
-        continue;  // Skip a line that isn't an argument
-      if (*it == *nit)
-        cerr << "Found one: " << *it << endl;
+      arg = string(argv[j]);
+      if (arg[0] != '-')
+        continue;  // Skip a line that does not contain an argument
+      if (arg.compare(opts[i].name) == 0)
+      {
+        // Process the argument
+        switch(opts[i].type) {
+          case 'x': // Simple flag/boolean
+            *((bool*) opts[i].ptr) = true;
+            break;
+          case 'd':
+            *((double*) opts[i].ptr) = atof(argv[++j]);
+            break;
+          case 'i':
+            *((int*) opts[i].ptr) = atoi(argv[++j]);
+            break;
+          case 'l':
+            *((int*) opts[i].ptr) = atol(argv[++j]);
+            break;
+          default:
+            break;
+        }
+      }
+      arg = "";
     }
   }
 
-
-
-  for (vector<string>::iterator it = args.begin(); it != args.end(); ++it)
-    cerr << *it << endl;
-
-
 }
+
+Options::OptionEntry::OptionEntry(string n, char t, void *v)
+{
+  name = n;
+  type = t;
+  ptr = v;
+}
+
+
+
+
