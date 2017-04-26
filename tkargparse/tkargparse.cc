@@ -14,7 +14,6 @@ void ::Options::add(string name, char type, void *var)
   opts.push_back(o);
 }
 
-
 void ::Options::process(int offset, int argc, char *argv[])
 {
   int i, j;
@@ -50,7 +49,6 @@ void ::Options::process(int offset, int argc, char *argv[])
       arg = "";
     }
   }
-
 }
 
 Options::OptionEntry::OptionEntry(string n, char t, void *v)
@@ -59,7 +57,3 @@ Options::OptionEntry::OptionEntry(string n, char t, void *v)
   type = t;
   ptr = v;
 }
-
-
-
-
