@@ -16,7 +16,8 @@ void ::Options::add(string name, char type, void *var)
 
 void ::Options::process(int offset, int argc, char *argv[])
 {
-  int i, j;
+  unsigned int i;
+  int j;
   string arg;
 
   for (i = 0; i < opts.size(); i++)
