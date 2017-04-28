@@ -1,0 +1,4 @@
+test.cc
+*.o
+*.so.*.*
+make_coverage_kml
