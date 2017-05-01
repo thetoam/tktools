@@ -43,6 +43,9 @@ void ::Options::process(int offset, int argc, char *argv[])
           case 'l':
             *((int*) opts[i].ptr) = atol(argv[++j]);
             break;
+          case 't':
+            *((string*)opts[i].ptr) = string(argv[++j]);
+            break;
           default:
             break;
         }
