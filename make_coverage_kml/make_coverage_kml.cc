@@ -10,16 +10,18 @@
 using namespace std;
 
 void idealPolygon(vector<double> point, vector<vector<double> > &polygon);
-string getKml(vector<double> point, vector<vector<double> > polygon);
+string getKml(string name, vector<double> point, vector<vector<double> > polygon);
 
 
 
 int main(int argc, char *argv[])
 {
 
+  // Argument variables, initialised to default values
   bool ideal = false;
   double lat = -999.9;
   double lon = -999.9;
+  string name = "Test";
 
   vector<double> point(3,-999.9);  // Coordinates of the centre point
   vector<vector<double> > polygon(3601, vector<double>(3, -999.9));  // Coordinates of polygon
@@ -28,10 +30,8 @@ int main(int argc, char *argv[])
   opt.add("ideal", 'x', &ideal);
   opt.add("lat", 'd', &lat);
   opt.add("lon", 'd', &lon);
+  opt.add("name", 't', &name);
   opt.process(1, argc, argv);
-
-
-
 
   // Populate the position vector
   if (lat == -999.9 || lon == -999.9)
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 
 
 
-  cout << getKml(point, polygon) << endl;
+  cout << getKml(name, point, polygon) << endl;
 
   return 0;
 }
@@ -78,7 +78,7 @@ void idealPolygon(vector<double> point, vector<vector<double> > &polygon)
 }
 
 
-string getKml(vector<double> point, vector<vector<double> > polygon)
+string getKml(string name, vector<double> point, vector<vector<double> > polygon)
 {
   unsigned int i;
   ostringstream sstream;
@@ -87,10 +87,10 @@ string getKml(vector<double> point, vector<vector<double> > polygon)
   kml += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
   kml += " <kml xmlns=\"http://www.opengis.net/kml/2.2\">\n";
   kml += "    <Document>\n";
-  kml += "      <name>%NAME%</name>\n";
+  kml += "      <name>" + name + "</name>\n";
   kml += "  <open>1</open>\n";
   kml += "  <description>\n";
-  kml += "    %NAME%\n";
+  kml += "    " + name + "\n";
   kml += "  </description>\n";
   kml += "  <Style id=\"default\">\n";
   kml += "    <IconStyle>\n";
@@ -134,7 +134,7 @@ string getKml(vector<double> point, vector<vector<double> > polygon)
   kml += "    </Pair>\n";
   kml += "  </StyleMap>\n";
   kml += "  <Placemark>\n";
-  kml += "  <name>%NAME%</name>\n";
+  kml += "  <name>" + name + "</name>\n";
   kml += "    <styleUrl>#default0</styleUrl>\n";
   kml += "  <MultiGeometry>\n";
   kml += "    <Point>\n";
