@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -9,8 +11,11 @@
 
 using namespace std;
 
-void idealPolygon(vector<double> point, vector<vector<double> > &polygon);
+void idealPolygon(vector<double> point, vector<vector<double> > &polygon, double radius);
 string getKml(string name, vector<double> point, vector<vector<double> > polygon);
+string getMergedKml(string name, int argc, char *argv[]);
+
+string extractKml(string file);
 
 
 
@@ -19,8 +24,11 @@ int main(int argc, char *argv[])
 
   // Argument variables, initialised to default values
   bool ideal = false;
+  bool nopoly = false;
+  bool merge = false;
   double lat = -999.9;
   double lon = -999.9;
+  double radius = 200.0;
   string name = "Test";
 
   vector<double> point(3,-999.9);  // Coordinates of the centre point
@@ -28,10 +36,23 @@ int main(int argc, char *argv[])
 
   Options opt;
   opt.add("ideal", 'x', &ideal);
+  opt.add("nopoly", 'x', &nopoly);
+  opt.add("merge", 'x', &merge);
   opt.add("lat", 'd', &lat);
   opt.add("lon", 'd', &lon);
+  opt.add("radius", 'd', &radius);
   opt.add("name", 't', &name);
   opt.process(1, argc, argv);
+
+
+  // Merge existing KML files
+  // Warning: assumes the command format make_coverage_kml [-name name] -merge <file list>
+  if (merge)
+  {
+    cout << getMergedKml(name, argc, argv) << endl;
+    return 0;
+  }
+
 
   // Populate the position vector
   if (lat == -999.9 || lon == -999.9)
@@ -45,21 +66,19 @@ int main(int argc, char *argv[])
   point[2] = 0;
 
 
-  // Populate the polygon vector
+  // Populate the polygon vector and output the kml
   if (ideal)
   {
-    idealPolygon(point, polygon);
+    idealPolygon(point, polygon, radius);
+    cout << getKml(name, point, polygon) << endl;
+    return 0;
   }
 
 
-
-  cout << getKml(name, point, polygon) << endl;
-
-  return 0;
 }
 
 
-void idealPolygon(vector<double> point, vector<vector<double> > &polygon)
+void idealPolygon(vector<double> point, vector<vector<double> > &polygon, double radius)
 {
   const double RE = 6371.0;
   unsigned int i;
@@ -69,7 +88,7 @@ void idealPolygon(vector<double> point, vector<vector<double> > &polygon)
   for (i = 0; i < polygon.size(); i++)
   {
     az = i / 10.0;
-    ll_arc_distance_deg(point[0], point[1], 200.0 / RE, az, lon, lat);
+    ll_arc_distance_deg(point[0], point[1], radius / RE, az, lon, lat);
     polygon[i][0] = lon;
     polygon[i][1] = lat;
     polygon[i][2] = 0;
@@ -175,3 +194,62 @@ string getKml(string name, vector<double> point, vector<vector<double> > polygon
 
 
 
+string getMergedKml(string name, int argc, char *argv[])
+{
+  vector<string> files;
+  int i;
+  string kml = "";
+
+  for (i = argc - 1; i >= 0;  i--)
+  {
+    string s = string(argv[i]);
+    if (s == "-merge")
+      break;
+    files.push_back(s);
+  }
+  sort(files.begin(), files.end());
+
+  kml += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+  kml += "<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n";
+  kml += " <Folder>\n";
+  kml += "  <name>" + name + "</name>\n";
+  kml += "  <open>1</open>\n";
+
+  for (i = 0; (unsigned int) i < files.size(); i++)
+  {
+    kml += extractKml(files[i]);
+  }
+
+  kml += " </Folder>\n";
+  kml += "</kml>\n";
+  return kml;
+}
+
+
+string extractKml(string file)
+{
+  size_t i = 0, j = 0;
+  string kml = "";
+  ifstream t(file.c_str());
+  stringstream buf;
+  buf << t.rdbuf();
+  kml = buf.str();
+
+  // Am I a folder?
+  if ((i = kml.find("<Folder>")) != string::npos)
+  {
+    j = kml.rfind("</Folder>") + 9;
+    kml = kml.substr(i, j - i);
+    return kml;
+  }
+
+  // Am I a document?
+  if ((i = kml.find("<Document>")) != string::npos)
+  {
+    j = kml.rfind("</Document>") + 11;
+    kml = kml.substr(i, j - i);
+    return kml;
+  }
+
+  return "";
+}
