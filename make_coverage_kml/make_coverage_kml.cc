@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
   bool ideal = false;
   bool nopoly = false;
   bool merge = false;
+  bool help = false;
   double lat = -999.9;
   double lon = -999.9;
   double radius = 200.0;
@@ -42,7 +43,14 @@ int main(int argc, char *argv[])
   opt.add("lon", 'd', &lon);
   opt.add("radius", 'd', &radius);
   opt.add("name", 't', &name);
+  opt.add("-help", 'x', &help);
   opt.process(1, argc, argv);
+
+  if (help)
+  {
+    cerr << "Usage: make_coverage_kml -lat LAT -lon LON [-radius R -name NAME -ideal -merge -nopoly]" << endl;
+    return 0;
+  }
 
 
   // Merge existing KML files
