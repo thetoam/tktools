@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 
 void idealPolygon(vector<double> point, vector<vector<double> > &polygon, double radius)
 {
-  const double RE = 6371.0;
+  const double RE = 6371000.0;
   unsigned int i;
   double lon, lat;
   double az;
