@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
   bool help = false;
   double lat = -999.9;
   double lon = -999.9;
-  double radius = 200.0;
+  double radius = 200000.0;
   string name = "Test";
 
   vector<double> point(3,-999.9);  // Coordinates of the centre point
